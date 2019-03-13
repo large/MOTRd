@@ -1,5 +1,0 @@
-C:\Source\MOTRd\fastJSON\bin\Debug\fastJSON.dll
-C:\Source\MOTRd\fastJSON\bin\Debug\fastJSON.pdb
-C:\Source\MOTRd\fastJSON\obj\Debug\fastJSON.dll
-C:\Source\MOTRd\fastJSON\obj\Debug\fastJSON.pdb
-C:\Source\MOTRd\fastJSON\obj\Debug\fastJSON.csproj.CoreCompileInputs.cache

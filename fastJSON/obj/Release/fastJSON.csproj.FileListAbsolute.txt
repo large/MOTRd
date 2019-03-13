@@ -1,6 +1,0 @@
-C:\Source\MOTRd\fastJSON\bin\Release\fastJSON.dll
-C:\Source\MOTRd\fastJSON\bin\Release\fastJSON.pdb
-C:\Source\MOTRd\fastJSON\obj\Release\fastJSON.csproj.CoreCompileInputs.cache
-C:\Source\MOTRd\fastJSON\obj\Release\fastJSON.dll
-C:\Source\MOTRd\fastJSON\obj\Release\fastJSON.pdb
-C:\Source\MOTRd\fastJSON\obj\Release\fastJSON.csprojAssemblyReference.cache
