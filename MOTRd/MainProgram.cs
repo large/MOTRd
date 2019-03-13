@@ -330,7 +330,7 @@ namespace MOTRd
                 m_WebServer.CreateWebServer(iHTTPS, webDirectory + @"WebFiles", true, webDirectory + @"motrd.pfx", "");
 #endif
             LogEventInformation("MOTRd everything created, program started...");
-            _logger.Debug(typeof(WindowsService), "MOTRd everything created, program started...");
+            _logger.Debug(typeof(WindowsService), "MOTRd everything created, program started git version...");
 
             //Wait forever for the shutdown event
             bSignaledThreadToStop = m_shutdownEvent.WaitOne(-1, true);
