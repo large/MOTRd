@@ -1,0 +1,15 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="MOTRd.Properties" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="Servicename" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">MOTRd</Value>
+    </Setting>
+    <Setting Name="Servicedisplayname" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">Movies On The Run (MOTR) daemon</Value>
+    </Setting>
+    <Setting Name="Servicedescription" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">MOTR creates a webserver at your machine to display selected folders. Users can then download, convert or unpack the files if they want.</Value>
+    </Setting>
+  </Settings>
+</SettingsFile>

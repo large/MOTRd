@@ -1,0 +1,288 @@
+<html>
+
+<head>
+	<title>Directory Contents</title>
+
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta http-equiv="cache-control" content="no-cache">
+	<meta http-equiv="expires" content="0">
+	<meta http-equiv="pragma" content="no-cache">
+	
+	<link rel="stylesheet" href="/jquery/jquery.mobile-1.4.5.min.css">
+	<link rel="stylesheet" href="/js/jquery.m.toast.css">
+	
+	<script src="/jquery/jquery-1.11.1.min.js"></script>
+	<script src="/jquery/jquery.mobile-1.4.5.min.js"></script>
+	<script src="/websocket.js"></script>
+	<script src="/admin-script.js"></script>
+	<script src="/js/jquery.m.toast.js"></script>
+	<!-- Floating toolbar -->
+	<script>
+		$(function(){
+			$("[data-role='navbar']").navbar();
+			$("[data-role='footer']").toolbar();
+		});
+	</script>
+</head>
+
+<body>
+
+<!-- Main window, where you navigate -->
+<div id="paths" data-role="page" data-title="MOTR - Paths - Admin">
+	<div data-role="header" class=""  data-position="fixed">
+		<a href="/directory.motr" rel="external" data-icon="back" title="Go back">Back</a>
+		<a href="#adddir" data-icon="plus" data-iconpos="notext" data-theme="a" data-rel="popup" data-position-to="window">Add dir</a>
+		<h1>MOTR - Admin - Paths</h1>
+	</div>
+
+	<div role="main" class="ui-content">
+		<ul data-role="listview" data-split-icon="delete" data-split-theme="d" id="dirlist">
+		</ul><!-- /listview -->
+	</div> <!-- main (hovedinnhold) -->	
+
+	<!-- Add dir popup -->
+	<div data-role="popup" id="adddir" data-overlay-theme="b" data-theme="b" data-dismissible="true">
+			<div data-role="header" data-theme="a">
+				<h1>Add directory?</h1>
+			</div>
+			<div role="main" class="ui-content">
+				<label for="displayname" class="">Displayname:</label>
+				<input type="text" name="displayname" id="displayname" value="" placeholder="Displayname" data-theme="a">
+				
+				<label for="path">Path on server:</label>
+				<div data-role="controlgroup" data-type="horizontal" data-theme="a">
+					<input type="text" name="path" id="path" data-wrapper-class="ui-btn" placeholder="Path on server" data-theme="a" >
+					<button type="button" data-theme="a" style="padding-top:1.18em;padding-bottom:1.18em;" onclick="AdminBrowse();">Browse</button>
+				</div>
+				
+				<!-- UNC username & password -->
+				<div style="display: none;" id="unc">
+					<label for="uncuser" class="">UNC username: (blank if use current user)</label>
+					<input type="text" name="uncuser" id="uncuser" value="" placeholder="UNC username" data-theme="a">
+					<label for="uncpass" class="">UNC password: (blank if use current user)</label>
+					<input type="text" name="uncpass" id="uncpass" value="" placeholder="UNC password" data-theme="a">
+				</div> <!-- UNC username & password -->
+
+				<script>
+					//Only show the username and password when path starts with \\
+					$( "#path" ).keyup(function() {
+						if($("#path").val().substring(0, 2) == "\\\\")
+							$("#unc").show();
+						else
+							$("#unc").hide();
+					});
+				</script>
+				<button type="button" class="ui-btn ui-corner-all ui-shadow ui-btn-b" onclick="AdminAddDirectory();">Add directory</button>
+			</div>
+	</div> <!-- popup -->
+
+		<div data-role="popup" id="error" data-overlay-theme="b" data-theme="b" data-dismissible="true">
+	</div>
+	
+	<!-- Delete directory popup -->
+	<div data-role="popup" id="removedirectory" data-overlay-theme="b" data-theme="b" data-dismissible="true">
+		<div data-role="header" data-theme="a">
+			<h1>Remove directory?</h1>
+		</div>
+		<div role="main" class="ui-content">
+			<p align=center>Do you really want to remove this directory from list?</p>
+			<p></p>
+			<p style="font-size:14px;color:gray;">
+			If you users logged in, the removal will make the directory unavailable and might case errors for logged in users.<br>
+			This changes does not change the queue of items in this directory.<br>
+			You have to manually remove items if you don't want them there anymore.</p>
+			<a href="#" class="ui-btn ui-corner-all ui-shadow ui-btn-inline ui-icon-delete ui-btn-icon-left ui-btn-b" onclick="AdminRemoveDirectory();">Remove directory</a>
+		</div>
+	</div> <!-- popup -->
+
+
+
+
+</div> <!-- page -->  
+
+<!-- DIRECTORYBROWSE PAGE -->
+<div id="dirbrowse" data-role="page" data-title="MOTR - Directory browser - Admin">
+	<div data-role="header" class="" data-position="fixed">
+		<a href="#paths" data-icon="back" title="Cancel">Cancel</a>
+		<h1>MOTR - Admin - Directory browser</h1>
+	</div><!-- /header -->
+
+	<div role="main" class="ui-content">
+		<div class="ui-grid-a">
+			<div class="list ui-block-a">
+				<ul data-role="listview" data-inset="true" id="admindirs" data-split-icon="bars" data-split-theme="d">
+				</ul><!-- /listview -->
+			</div>
+			<div class="list ui-block-b">
+				<ul data-role="listview" data-split-icon="star" data-split-theme="d" data-inset="true" id="adminfilebrowser">
+				</ul><!-- /listview -->
+			</div>
+		</div>
+	</div> <!-- main (hovedinnhold) -->
+
+	<!-- UNC username for share -->
+	<div data-role="popup" id="uncinfo" data-overlay-theme="b" data-theme="b" data-dismissible="true">
+			<div data-role="header" data-theme="a">
+				<h1>UNC username and password</h1>
+			</div>
+			<div role="main" class="ui-content">
+				<label for="uncshareuser" class="">Username:</label>
+				<input type="text" name="uncshareuser" id="uncshareuser" value="" placeholder="Username" data-theme="a">
+
+				<label for="uncsharepass" class="">Password:</label>
+				<input type="text" name="uncsharepass" id="uncsharepass" value="" placeholder="Password" data-theme="a">
+
+				<button type="button" class="ui-btn ui-corner-all ui-shadow ui-btn-b" onclick="AdminConnectUsingCredentials();">Connect</button>
+
+			</div>	
+	</div> <!--popup-->
+	
+	<div data-role="popup" id="waitfordrives" data-overlay-theme="b" data-theme="b" data-dismissible="false">
+			<div data-role="header" data-theme="a">
+				<h1>Waiting dialog</h1>
+			</div>
+			<div role="main" class="ui-content">
+				<p>Please wait while the driveslist are created</p>
+				<p>This could take a while if the network connections are slow</p>
+				<p>To abort and return to paths, press button below</p>
+				<button type="button" class="ui-btn ui-corner-all ui-shadow ui-btn-b" onclick="AbortAndReturn();">Abort and close</button>
+			</div>
+	</div>
+	
+</div> <!-- page -->
+
+
+<!-- USERS PAGE -->
+<div id="users" data-role="page" data-title="MOTR - Users - Admin">
+	<div data-role="header" class="ui-btn-right" data-position="fixed">
+		<a href="/directory.motr" rel="external" data-icon="back" title="Go back">Back</a>
+		<a href="#adduser" data-icon="plus" data-iconpos="notext" data-theme="a" data-rel="popup" data-position-to="window">Add user</a>
+		<h1>MOTR - Admin - Users</h1>
+	</div><!-- /header -->	
+
+	<div role="main" class="ui-content">
+		<ul data-role="listview" data-split-icon="delete" data-split-theme="d" id="userlist">
+		</ul><!-- /listview -->
+	</div> <!-- main (hovedinnhold) -->	
+	
+	<!-- Add User popup -->
+	<div data-role="popup" id="adduser" data-overlay-theme="b" data-theme="b" data-dismissible="true">
+			<div data-role="header" data-theme="a">
+				<h1>Add user?</h1>
+			</div>
+			<div role="main" class="ui-content">
+				<label for="un" class="ui-hidden-accessible">Username:</label>
+				<input type="text" name="user" id="un" value="" placeholder="Username" data-theme="a">
+				<label for="pw" class="ui-hidden-accessible">Password:</label>
+				<input type="password" name="pass" id="pw" value="" placeholder="Password" data-theme="a">
+				<button type="button" class="ui-btn ui-corner-all ui-shadow ui-btn-b" onclick="AdminAdduser();">Add user</button>
+			</div>
+	</div>
+	
+	<div data-role="popup" id="edituser" data-overlay-theme="b" data-theme="b" data-dismissible="true">
+		<div data-role="header" data-theme="a">
+			<h1>Edit user</h1>
+		</div>
+		<div role="main" class="ui-content">
+			<label for="pw" class="ui-hidden-accessible">Password:</label>
+			<input type="password" name="pass" id="pwchange" value="" placeholder="password" data-theme="a">
+			<button type="button" class="ui-btn ui-corner-all ui-shadow ui-btn-b" onclick="AdminChangeUser();">Change password</button>
+		</div>
+	</div>
+	
+	<div data-role="popup" id="deleteuser" data-overlay-theme="b" data-theme="b" data-dismissible="true">
+		<div data-role="header" data-theme="a">
+			<h1>Delete user?</h1>
+		</div>
+		<div role="main" class="ui-content">
+			<p align=center>Do you really want to delete this user?</p>
+			<p></p>
+			<p style="font-size:14px;color:gray;">It is not possible to empty the whole list of users,<br>so if you want to change the existing one,<br>just add a new user and delete the other one.</p>
+			<a href="#" class="ui-btn ui-corner-all ui-shadow ui-btn-inline ui-icon-delete ui-btn-icon-left ui-btn-b" onclick="AdminDeleteUser();">Delete user</a>
+		</div>
+	</div>
+</div> <!-- page --> 
+
+<!-- SETTINGS PAGE -->
+<div id="settings" data-role="page" data-title="MOTR - Settings - Admin">
+	<div data-role="header" class="" data-position="fixed">
+		<a href="/directory.motr" rel="external" data-icon="back" title="Go back">Back</a>
+		<h1>MOTR - Admin - Settings</h1>
+	</div><!-- /header -->
+
+	<div role="main" class="ui-content">
+		<h3>Webserver ports</h3>
+		<p>Server can run on any port from 1 to 65535. Note that only one server can run on one port.</p>
+		<label for="httpport">HTTP port (non secure):</label>
+		<input type="number" data-clear-btn="false" min=1 step=1 max=65535 name="httpport" pattern="^[0-9]" id="httpport" value="</@HTTPPORT@>" onkeypress="return event.charCode >= 48">
+		<label for="httpsport">HTTPS port (secure) Note: 0 on https is equal to disable:</label>
+		<input type="number" data-clear-btn="false" min=1 step=1 max=65535 name="httpsport" pattern="^[0-9]" id="httpsport" value="</@HTTPSPORT@>" onkeypress="return event.charCode >= 48">
+		<a href="#setports" class="ui-btn ui-btn-inline" onclick="RestartServerWithPorts();">Save ports</a>
+		
+		<h3>Tools</h3>
+		<p>Click the icon below to check for new version</p>
+			
+		<ul data-role="listview" data-inset="true" data-split-icon="search" data-split-theme="d" id="tools">
+			<li class="toolclick" id="handbreak"><a href="#" >
+				<img src="/.images/handbreak.png">
+				<h2>Handbreak (commandline)</h2>
+				<p>Version installed: </@HANDBREAKVERSION@></p>
+				</a>
+			</li>
+			<li class="toolclick" id="unrar"><a href="#">
+				<img src="/.images/unrar.jpg">
+				<h2>Unrar (commandline)</h2>
+				<p>Version installed: </@UNRARVERSION@></p>
+				</a>
+			</li>
+		</ul>
+
+	</div> <!-- main (hovedinnhold) -->
+	
+	<!-- Popup for checking for updates -->
+	<div data-role="popup" id="checkforupdates" data-overlay-theme="b" data-theme="b" data-dismissible="true">
+		<div data-role="header" data-theme="a">
+			<h1>Check for updated version</h1>
+		</div>
+		<div role="main" class="ui-content">
+			<p align=center>Click the button below to check and update the tool if a newer version is available</p>
+			<p align=center>Note that the process could take a while and that server might be unresponsive based on the download speed</p>
+			<p align=center>Other users are unaffected by this update, and newest version will always be choosen for next action taken in the queue</p>
+			<p></p>
+			<a href="#" class="ui-btn ui-corner-all ui-shadow ui-btn-inline ui-icon-delete ui-btn-icon-left ui-btn-b" onclick="CheckForUpdateTool();">Check for update</a>
+		</div>
+	</div> <!-- Checking for updates -->
+	
+</div> <!-- page -->
+
+
+
+<div id="login" data-role="page" data-dialog="true">
+	<div data-role="header" data-theme="b">
+		<h1>MOTR - Admin - login</h1>
+	</div>
+
+	<div role="main" class="ui-content">
+		<h1>Please login to proceed</h1>
+		<label for="password">Password:</label>
+		<input type="password" name="password" id="passwordoutput" value="" autocomplete="off">
+		<p id="result" style="color:red"></p>
+		<a href="#" type="submit" class="ui-btn ui-shadow ui-corner-all ui-btn-a" onclick="SendLoginPassword();">OK</a>
+		<a href="/directory.motr" rel="external" class="ui-btn ui-shadow ui-corner-all ui-btn-a">Cancel</a>
+	</div>
+</div> <!-- page --> 
+
+<!-- Outside since it is floating -->
+<div data-role="footer" data-position="fixed" data-theme="a" data-tap-toggle="false">
+	<div data-role="navbar">
+		<ul>
+			<li><a href="#paths" id="select-paths" onClick="">Paths</a></li>
+			<li><a href="#users" id="select-users" onClick="">Users</a></li>
+			<li><a href="#settings" id="select-settings" onClick="">Settings</a></li>
+		</ul>
+	</div><!-- /navbar -->
+</div><!-- /footer -->
+
+</body>
+</html>

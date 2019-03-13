@@ -1,0 +1,45 @@
+<html>
+<head>
+	<title>Movies on the run (MOTR) logged off</title>
+
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" /> 
+	<meta http-equiv="cache-control" content="no-cache">
+	<meta http-equiv="expires" content="0">
+	<meta http-equiv="pragma" content="no-cache">
+
+	<link rel="stylesheet" type="text/css" href="/jquery/jquery.mobile-1.4.5.min.css">
+	<script src="/jquery/jquery-1.11.1.min.js"></script>
+	<script src="/jquery/jquery.mobile-1.4.5.min.js"></script>
+
+</head>
+
+<!-- Logoff script, remove all traces -->
+<script>
+	document.cookie = 'TempID=; expires=Thu, 01 Jan 1970 00:00:01 GMT; path=/;';
+	sessionStorage.removeItem("SessionID");
+	localStorage.removeItem("SessionID");
+	sessionStorage.removeItem("UserID");
+	localStorage.removeItem("UserID");
+	sessionStorage.removeItem("AuthID");
+	localStorage.removeItem("AuthID");
+</script>
+
+<body>
+<!-- Main window, where you navigate -->
+<div data-role="page" class="ui-responsive-panel" id="loginpage" data-title="MOTR - Movies On The Run - Login">
+	
+	<div data-role="main" class="ui-content ">
+		<div style="width: 100%;">
+			<img alt="" src="/.images/logo.png" border=0 style="width: 100%;">
+		</div>
+		<a href="/" id="btn-login" rel="external" class="ui-btn ui-btn-b ui-corner-all mc-top-margin-1-5">Click here to login again</a>
+	</div> <!-- main (hovedinnhold) -->
+
+	<div data-role="footer" data-position="fixed">
+		<div class="ui-bar">
+		</div>
+	</div><!-- /footer -->
+</body>
+
+</html>

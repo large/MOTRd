@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<addon id="script.motr" name="Movies On The Run" version="0.2.6" provider-name="Lars Werner">
+    <requires>
+        <import addon="xbmc.python" version="2.25.0"/>
+    </requires>
+    <extension point="xbmc.python.script" library="main.py">
+        <provides>executable</provides>
+    </extension>
+    <extension point="xbmc.addon.metadata">
+        <summary lang="en_GB">Kodi client for connecting to your MOTR server.
+Convert, stream or download your movies in Kodi on the go.
+
+Remember queue is common for all users, hold the line.
+
+Plug-in has been tested with Android, Nvidia Shield, Linux/OpenElec and Windows. Please inform me if it works on a Mac :)</summary>
+        <description lang="en_GB"></description>
+        <language>en</language>
+        <platform>all</platform>
+        <license>Apache-2.0</license>
+        <forum>www.motr.pw</forum>
+        <website>www.motr.pw</website>
+        <source>www.motr.pw</source>
+        <email>lars@werner.no</email>
+        <news>Soon to be a RC?</news>
+        <disclaimer>Session, username and password are stored in clear text in Kodi, use other clients for security</disclaimer>
+        <assets>
+            <icon>icon.png</icon>
+            <fanart>fanart.jpg</fanart>
+            <screenshot>screenshot1.jpg</screenshot>
+            <screenshot>screenshot2.jpg</screenshot>
+            <screenshot>screenshot3.jpg</screenshot>
+        </assets>
+    </extension>
+</addon>

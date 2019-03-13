@@ -1,0 +1,7 @@
+C:\Source\MOTRd\WebSockets\bin\Debug\MimeTypes.config
+C:\Source\MOTRd\WebSockets\bin\Debug\WebSockets.dll
+C:\Source\MOTRd\WebSockets\bin\Debug\WebSockets.pdb
+C:\Source\MOTRd\WebSockets\obj\Debug\WebSockets.dll
+C:\Source\MOTRd\WebSockets\obj\Debug\WebSockets.pdb
+C:\Source\MOTRd\WebSockets\obj\Debug\WebSockets.csproj.CoreCompileInputs.cache
+C:\Source\MOTRd\WebSockets\obj\Debug\WebSockets.csprojAssemblyReference.cache

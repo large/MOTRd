@@ -1,0 +1,87 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>MOTR Login</title>
+	
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" /> 
+	<meta http-equiv="cache-control" content="no-cache">
+	<meta http-equiv="expires" content="0">
+	<meta http-equiv="pragma" content="no-cache">
+
+	<link rel="stylesheet" type="text/css" href="/jquery/jquery.mobile-1.4.5.min.css">
+	<link rel="stylesheet" href="/js/jquery.m.toast.css">
+
+	<script src="/jquery/jquery-1.11.1.min.js"></script>
+	<script src="/jquery/jquery.mobile-1.4.5.min.js"></script>
+	<script src="/websocket.js"></script>
+	<script src="/login.js"></script>
+	<script src="/js/jquery.m.toast.js"></script>
+</head>
+
+<body>
+
+<!-- Main window, where you navigate -->
+<div data-role="page" class="ui-responsive-panel" id="loginpage" data-title="MOTR - Movies On The Run - Login">
+	
+	<div data-role="main" class="ui-content ">
+	
+		<div style="width: 100%;">
+			<img alt="" src="/.images/logo.png" border=0 style="width: 100%;">
+		</div>
+		
+		<label for="username">Username</label>
+		<input type="text" name="username" id="username" value="">
+		<label for="password">Password</label>
+		<input type="password" name="password" id="password" value="">
+		
+		<label for="storesession">Remember me</label>
+		<input type="checkbox" id="storesession" name="storesession" value="on">
+		
+		<a href="#" id="btn-submit" class="ui-btn ui-btn-b ui-corner-all mc-top-margin-1-5">Submit</a>
+
+		<!--
+    	<label for="status">Background worker status:</label>
+		<textarea cols="40" rows="8" name="status" id="status" disabled="disabled"></textarea>
+		-->
+
+		<div data-role="popup" id="dlg-message" data-dismissible="false" style="max-width:400px;" >
+			<div role="main" class="ui-content">
+				<h3 class="mc-text-danger" id="dlg-header">Login Failed</h3>
+				<p id="dlg-maintext">Did you enter the right credentials?</p>
+				<div class="mc-text-center"><a href="#" data-rel="back" class="ui-btn ui-corner-all ui-shadow ui-btn-b mc-top-margin-1-5">OK</a>
+				</div>
+			</div>
+		</div>
+	</div> <!-- main (hovedinnhold) -->
+
+	<div data-role="footer" data-position="fixed">
+		<div class="ui-bar">
+		</div>
+	</div><!-- /footer -->
+</body>
+
+<script>
+//Fire the OnSubmit on login.js
+$(document).ready(function () {
+	//Trigger the OnSubmit function
+    $('#btn-submit').on('click', OnSubmit)
+	
+	//Handle enter-key when logging in
+	$('#username').keydown(function(event){ 
+		var keyCode = (event.keyCode ? event.keyCode : event.which);   
+		if (keyCode == 13) {
+			$('#btn-submit').trigger('click');
+		}
+	});
+	$('#password').keydown(function(event){ 
+		var keyCode = (event.keyCode ? event.keyCode : event.which);   
+		if (keyCode == 13) {
+			$('#btn-submit').trigger('click');
+		}
+	});
+	
+});
+</script>
+
+</html>

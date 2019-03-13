@@ -1,0 +1,395 @@
+<html>
+
+<head>
+	<title>Directory Contents</title>
+
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta http-equiv="cache-control" content="no-cache">
+	<meta http-equiv="expires" content="0">
+	<meta http-equiv="pragma" content="no-cache">
+
+	<link rel="stylesheet" type="text/css" href="/jquery/jquery.mobile-1.4.5.min.css">
+
+	<script src="/jquery/jquery-1.11.1.min.js"></script>
+	<script src="/jquery/jquery.mobile-1.4.5.min.js"></script>
+    <script src="/js/nanobar.min.js"></script>
+	<script src="/presets.js"></script>
+	<script src="/websocket.js"></script>
+	<script src="/script.js"></script>
+	<script src="/js/jquery.m.toast.js"></script>
+	<script src="/js/download.min.js"></script>
+
+	<style>
+		.navsorting .ui-btn { padding-top: 10px !important;  margin-top: 0px !important; }
+		.navsorting .ui-btn:after { width: 20px!important; height: 20px!important; margin-left: -15px !important; box-shadow: none!important; -moz-box-shadow: none!important; -webkit-box-shadow: none!important; -webkit-border-radius: 0 !important; border-radius: 0 !important; }
+		    #sort-name:after { background: url("/.images/sort-name.png")   50% 50% no-repeat; background-size: 20px 20px;}
+		#sort-modified:after { background: url("/.images/sort-modify.png") 50% 50% no-repeat; background-size: 20px 20px;}
+		    #sort-size:after { background: url("/.images/sort-size.png")   50% 50% no-repeat; background-size: 20px 20px;}
+			
+		.ui-icon-myimage:after {
+		  background: url(/.images/directory.png) 50% 50% no-repeat;
+		  background-size: 22px 22px;
+		  background-color: transparent;
+		  border-radius: 0;
+		}
+
+		.inlineIcon {
+			display: inline-block;
+			position: relative;
+			vertical-align: middle;
+			margin-right: 6px;
+			margin-bottom: 6px;
+		}
+		
+    .ui-header .ui-title {
+        margin-right: 0px;
+        margin-left: 0px;
+    }
+	</style>
+	
+</head>
+
+<body>
+
+<!-- Main window, where you navigate -->
+<div data-role="page" class="ui-responsive-panel" id="thepage" data-title="MOTR - Movies On The Run">
+
+    <div data-role="header" class="ui-btn-right" data-position="fixed">
+		<h1 id="headertext">Movies On The Run (MOTR)</h1>
+        <a href="#navigation" data-icon="home" data-iconpos="notext">Menu</a>
+
+		<div data-role='control-group' data-type="horizontal" class="ui-btn-right" >
+			<a href="#mobiledownloads" class="ui-btn ui-corner-all ui-icon-arrow-d ui-btn-icon-notext" data-theme="b">Mobiledownloads</a>           
+			<a href="#workqueue"       class="ui-btn ui-corner-all ui-icon-gear    ui-btn-icon-notext" data-theme="b">Workqueue</a>
+		</div>
+		
+		<div data-role="navbar" class="navsorting" data-iconpos="right">
+			<ul>
+				<li><a href="#" id="sort-name" data-icon="custom" onClick="setSorting('NAME');">Name</a></li>
+				<li><a href="#" id="sort-modified" data-icon="custom"onClick="setSorting('MODIFY');">Modified</a></li>
+				<li><a href="#" id="sort-size" data-icon="custom" onClick="setSorting('SIZE');">Size</a></li>
+			</ul>
+		</div><!-- /navbar -->
+    </div><!-- /header -->
+
+	
+	<div data-role="main" class="ui-content jqm-fullwidth">
+        <ul data-role="listview" data-autodividers="false" data-filter="true" id="filelist">
+        </ul><!-- /listview -->
+	</div> <!-- main (hovedinnhold) -->
+
+<!-- Sidepanel (drives) -->
+	<div data-role="panel" data-position="left" data-display="reveal" data-theme="b" id="navigation">
+		<div data-role="header">
+			<h1>Drives</h1>
+		</div>
+		
+		<div class="ui-content jqm-fullwidth">
+			<ul data-role="listview" data-autodividers="false" id="nav-list">
+			</ul>
+		</div>
+		
+		<div data-role="footer">
+				<p style="font-size: 12px; text-align: center">Select drive to browse the content</p>
+		</div><!-- /footer -->
+	</div> <!-- /panel -->
+	
+
+<!-- Sidepanel (mobiledownloads) -->
+	<div data-role="panel" data-position="right" data-position-fixed="true" data-display="push" data-theme="a" id="mobiledownloads">
+		<div data-role="header">
+			<h1>Mobile downloads</h1>
+		</div>
+		
+		<div class="ui-field-contain">
+			<select name="select-action" id="mobileselected" data-iconpos="left">
+				<option value="choose">Select your mobile</option>
+			</select>
+		</div>
+		
+		<div class="ui-content jqm-fullwidth">
+			<ul data-role="listview" data-split-theme="a" data-theme="a" id="mobiledownloadlist">
+			</ul><!-- /listview -->
+		</div>
+		
+		<div data-role="popup" id="mobiledownloadlistmanagement" data-theme="a" data-overlay-theme="b" class="ui-content" style="max-width:340px; padding-bottom:2em;">
+			<h3>Manage mobile download</h3>
+			<p>Select what action you want todo with the item. Press outside this window to cancel...</p>
+			<div data-role="controlgroup">
+				<a href="#" class="ui-btn ui-corner-all ui-icon-carat-u ui-btn-icon-top" 	onclick="onQueueAction('move-top');">Move to top</a>
+				<a href="#" class="ui-btn ui-corner-all ui-icon-arrow-u ui-btn-icon-top" 	onclick="onQueueAction('move-up');">Move up</a>
+				<a href="#" class="ui-btn ui-corner-all ui-icon-arrow-d ui-btn-icon-bottom" onclick="onQueueAction('move-down');">Move down</a>
+				<a href="#" class="ui-btn ui-corner-all ui-icon-carat-d ui-btn-icon-bottom" onclick="onQueueAction('move-bottom')";>Move to bottom</a>
+				<a href="#" class="ui-btn ui-corner-all ui-icon-delete ui-btn-icon-left" 	onclick="onQueueAction('remove');">Remove</a>
+				<a href="#" class="ui-btn ui-corner-all ui-icon-check ui-btn-icon-left" 	onclick="onQueueAction('run');">Run now</a>
+			</div>
+		</div>
+		
+	</div>
+	
+<!-- Sidepanel (queue) -->
+	<div data-role="panel" data-position="right" data-position-fixed="true" data-display="push" data-theme="b" id="workqueue">
+
+		<div data-role="header">
+			<h1>Work queue</h1>
+		</div>
+		
+		<div data-role="popup" id="queuemanagement" data-theme="a" data-overlay-theme="b" class="ui-content" style="max-width:340px; padding-bottom:2em;">
+			<h3>Manage queue item</h3>
+			<p>Select what action you want todo with the queue item. Press outside this window to cancel...</p>
+			<div data-role="controlgroup">
+				<a href="#" class="ui-btn ui-corner-all ui-icon-carat-u ui-btn-icon-top" 	onclick="onQueueAction('move-top');">Move to top</a>
+				<a href="#" class="ui-btn ui-corner-all ui-icon-arrow-u ui-btn-icon-top" 	onclick="onQueueAction('move-up');">Move up</a>
+				<a href="#" class="ui-btn ui-corner-all ui-icon-arrow-d ui-btn-icon-bottom" onclick="onQueueAction('move-down');">Move down</a>
+				<a href="#" class="ui-btn ui-corner-all ui-icon-carat-d ui-btn-icon-bottom" onclick="onQueueAction('move-bottom')";>Move to bottom</a>
+				<a href="#" class="ui-btn ui-corner-all ui-icon-delete ui-btn-icon-left" 	onclick="onQueueAction('remove');">Remove</a>
+				<a href="#" class="ui-btn ui-corner-all ui-icon-check ui-btn-icon-left" 	onclick="onQueueAction('run');">Run now</a>
+			</div>
+		</div>
+		
+		<div data-role="popup" id="queuemanagement-running" data-theme="a" data-overlay-theme="b" class="ui-content" style="max-width:340px; padding-bottom:2em;">
+			<h3>Manage running queue item</h3>
+			<p>Select what action you want todo with the running queue item.<br>Press outside this window to cancel...</p>
+			<div data-role="controlgroup">
+				<a href="#" class="ui-btn ui-corner-all ui-icon-delete ui-btn-icon-left" 	onclick="onQueueAction('stop-running');">Stop</a>
+				<a href="#" class="ui-btn ui-corner-all ui-icon-alert ui-btn-icon-left" 	onclick="onQueueAction('remove-running');">Stop and remove</a>
+			</div>
+		</div>
+		
+		<div class="ui-field-contain">
+			<select name="select-action" id="queue-action" data-iconpos="left">
+				<option value="choose">Choose action...</option>
+				<option value="clear-finished">Clear queue for finished items</option>
+				<option value="stop-all-running">Stop current task(s)</option>
+				<option value="remove-all">Remove all items (also stops current)</option>
+			</select>
+		</div>
+		
+		<!-- Dropdown handling for queue-action -->
+		<script>
+			$(function(){
+			  // bind change event to select
+			  $('#queue-action').bind('change', function () {
+				if($(this).val() != 'choose')
+				{
+				  $('#queuemanagement').data('queueid', -1);	//Clear current queue
+				  onQueueAction($(this).val());					//Update with command given in option
+				  $('#queue-action').val('choose').selectmenu('refresh'); //Select the "choose" option
+				}
+			  });
+			});
+		</script>
+
+		
+		<div class="ui-content jqm-fullwidth">
+			<ul data-role="listview" data-split-icon="plus" data-split-theme="b" data-theme="b" data-divider-theme="b" id="queue-running">
+				<li data-role="list-divider">Running</li>				
+			</ul><!-- /listview -->
+		</div>
+
+		<div class="ui-content">
+			<ul data-role="listview" data-split-icon="plus" data-split-theme="b" data-theme="b" data-divider-theme="b" id="queue-notrunning">
+				<li data-role="list-divider">Queue</li>				
+			</ul><!-- /listview -->
+		</div>
+
+		<div class="ui-content jqm-fullwidth">
+			<ul data-role="listview" data-autodividers="false" data-inset="false" data-theme="b" data-divider-theme="b" id="queue-finished">
+				<li data-role="list-divider">Finished</li>
+			</ul><!-- /listview -->
+		</div>
+				
+		<div data-role="footer">
+		</div><!-- /footer -->
+	</div> <!-- /panel -->
+	
+
+	<div data-role="footer" data-position="fixed">
+		<div class="ui-bar">
+			<div class="ui-grid-b">
+				<div class="ui-block-a">
+					<a href="#" class="ui-btn ui-corner-all ui-shadow" data-role="button" id="websocketbtn" onclick="tryReconnect();">Not connected</a> 
+					<a href="/logoff.motr" rel="external" class="ui-btn ui-corner-all ui-shadow ui-icon-power ui-btn-icon-left" data-inline="true" id="logoff"     onclick="">Logoff</a>
+				</div>
+
+				<div class="ui-block-b" style="display: table-cell; vertical-align: middle; white-space: nowrap; display: inline-block;">
+				 <p>Logged in as </@DISPLAYNAME@></p>
+				</div>
+
+				<div class="ui-block-c" align="right">
+					<a href="/admin.motr"  rel="external" class="ui-btn ui-corner-all ui-shadow ui-icon-grid ui-btn-icon-left ui-btn-inline"  data-role="button" id="adminlogin" onclick="">Admin</a>
+					<div class="ui-checkbox ui-btn-inline">							
+						<label for="cleanfilenames">Clean filelist</label>
+						<input type="checkbox" id="cleanfilenames" name="cleanfilenames" data-mini="true" onchange="toggleCleanFilenames();">
+					</div>
+				</div>
+			</div>
+		</div>
+    </div><!-- /footer -->	
+</div> <!-- page -->  
+
+<!--second page -->
+<div data-role="page" class="ui-responsive-panel" id="details-page">
+    <div data-role="header">
+		<h1>Movies On The Run (MOTR) - File view</h1>
+        <a href="#" data-rel="back" data-icon="back" data-iconpos="notext">Back</a>
+    </div>
+	
+    <div data-role="content">
+		<div data-role="collapsibleset">
+			<div data-role="collapsible" id="filename">
+			<h3></h3>
+				<ul data-role="listview" data-filter="false" id="fileinfo">
+				</ul>
+			</div>
+		</div>
+	
+		<script type="text/javascript">
+			function onConvertDiv(bShow)
+			{
+				$("#details-page").data("showconvert", bShow );
+				if(bShow == true)
+					$('#convert-options').show();
+				else
+					$('#convert-options').hide();;
+			}
+		</script>
+	
+	<div data-role="popup" id="popupMenu" data-theme="b">
+		<ul data-role="listview" data-inset="true" style="min-width:210px;" id="popupItems">
+			<li data-role="list-divider">Download to:</li>
+		</ul>
+	</div>
+	
+	<a href="#" id="download-button" data-rel="popup" data-transition="pop" class="ui-btn ui-icon-arrow-d ui-btn-icon-top ui-btn-inline" onclick="onDownloadFile();">Download</a>
+	<a href="#" id="convert-button" class="ui-btn ui-icon-video ui-btn-icon-top ui-btn-inline" onclick="if($('#convert-options').is(':hidden')) onConvertDiv(true); else onConvertDiv(false);">Convert</a>
+	<a href="#" id="extract-button" class="ui-btn ui-icon-eye ui-btn-icon-top ui-btn-inline" onclick="onQueueUnrar();">Extract</a>
+	<a href="#" id="stream-button" class="ui-btn ui-icon-eye ui-btn-icon-top ui-btn-inline" onclick="$('#dlg-streammessage').popup('open');">Stream media</a>
+	
+		<div data-role="popup" id="dlg-streammessage" data-dismissible="false" style="max-width:400px;" >
+			<div role="main" class="ui-content">
+				<h3 class="mc-text-danger" id="dlg-streamheader">Stream file</h3>
+				<p id="dlg-streammaintext">To stream your media, use <a href="https://www.videolan.org/" target="blank">Videolan</a> or another m3u-supported player with http/https support.<br><br>Do you want to download the playlist now?</p>
+				<div class="mc-text-center"><a href="#" class="ui-btn ui-corner-all ui-shadow ui-btn-b mc-top-margin-1-5" onclick="onStreamMedia();">OK</a>
+				</div>
+				<div class="mc-text-center"><a href="#" data-rel="back" class="ui-btn ui-corner-all ui-shadow ui-btn-b mc-top-margin-1-5">Cancel</a>
+				</div>
+			</div>
+		</div>
+	
+	
+		<div class="ui-corner-all custom-corners" id="convert-options" style="display:none;" >
+				<script  type="text/javascript">
+					//Set help-text and filename to the 
+					function onConvertSelect()
+					{
+						//Get index nr
+						var indexnr = $("#convert-selection option:selected").val();
+						if(indexnr == "Choose...") //Nothing selected, return
+							return;
+							
+						//Clear and set help-text
+						$("#convert-description").empty().append(aHandBreakPresetsDescription[indexnr]);
+						
+						//Get preset and set filename
+						var sPreset = aHandBreakPresets[indexnr];
+						var sExtension = $("#details-page").data("extension");
+						var sField = "filename";
+						if ($('#fileclean').val() == "on")
+							sField = "filenameclean";
+						var sFilenameWOExt = $("#details-page").data(sField).slice(0, -sExtension.length);
+
+						//Here are the file output-text suggested
+						$("#output-filename").val(sFilenameWOExt+'-MOTR[' + sPreset + ']' + sExtension);
+					}
+
+					//Triggers when the page changes
+					$(document).bind( "pagechange", function( e, data ) {
+						//Show/hide base on last state (used with popup)
+						onConvertDiv($("#details-page").data("showconvert"));
+						onConvertSelect(); //Update text with new info
+					});					
+						
+				</script>
+
+			<div class="ui-bar ui-bar-b">
+				<h3>Convert options</h3>
+			</div>
+			<div class="ui-body ui-body-b">
+
+				<form>
+					<div class="ui-field-contain">
+						<label for="convert-selection">Select profile:</label>
+						<select name="convert-selection" id="convert-selection" onchange="onConvertSelect();">
+				aa<option>Choose...</option>
+							<script type="text/javascript">document.write(listPresetsAsGroups());</script>
+						</select>
+					</div>
+				</form>
+
+				<label for="output-filename">Description of the profile:</label>
+				<div class="ui-body ui-body-b ui-corner-all" id="convert-description">
+				</div>
+				
+				<label for="output-filename">Output filename:</label>
+				<input type="text" data-theme="a" name="output-filename" id="output-filename" value="">
+
+				<form>
+					<div class="ui-field-contain">
+						<label for="fileclean">Use clean filenames:</label>
+						<select id="fileclean" data-role="flipswitch" data-mini="true" onchange="onConvertSelect();">
+						<option value="off">Off</option>
+						<option value="on">On</option>
+					</select>
+					</div>
+				</form>			
+				
+				<div data-role="popup" id="popupArrow" data-arrow="true" data-position-to="#convert-selection">
+					<p><strong id="popup-line1"></strong></p>
+					<p id="popup-line2"></p>
+				</div>
+
+				<a href="#" class="ui-btn ui-icon-arrow-u-r ui-btn-icon-top ui-btn-inline" onclick="onQueueAdd(true);">Add top</a>
+				<a href="#" class="ui-btn ui-icon-arrow-d-l ui-btn-icon-top ui-btn-inline" onclick="onQueueAdd(false);">Add bottom</a>
+				<a href="#" class="ui-btn ui-icon-delete ui-btn-icon-top ui-btn-inline" onclick="onConvertDiv(false);">Hide</a>
+			</div>
+		</div>
+	</div> <!--data-role="content"> -->
+</div> <!-- second page -->
+
+<!--second page -->
+<div data-role="page" class="ui-responsive-panel" id="queue-page">
+    <div data-role="header">
+		<h1>Movies On The Run (MOTR) - Queue view</h1>
+        <a href="#" data-rel="back" data-icon="back" data-iconpos="notext">Back</a>
+    </div>
+	
+	<div data-role="content" class="ui-content jqm-fullwidth">
+			<ul data-role="listview" data-filter="false" id="queueinfo">
+			</ul>
+	</div>
+
+	<div style='margin:20px; position:relative'>
+		<label for="output-filename"><b>Output from console</b> <a href="#" class="ui-btn ui-shadow ui-corner-all ui-icon-refresh ui-btn-icon-notext ui-btn-inline" onclick="OnQueueRefresh();">Refresh</a></label>
+		<div class="custom-corners ui-body ui-body-a ui-corner-all" id="queueoutput">
+		</div>	
+		<a href="#" class="ui-btn ui-shadow ui-corner-all ui-icon-refresh ui-btn-inline ui-btn-icon-left ui-mini" onclick="OnQueueRefresh();">Refresh output from console</a>
+	</div>	
+	
+</div>
+
+
+<div data-role="page" data-close-btn="none" data-dialog="true" id="popup-message">
+		<div data-role="header">
+			<h1 id="dialog-header"></h1>
+		</div>
+
+		<div role="main" class="ui-content">
+			<p id="dialog-text"></p>
+			<a href="#" data-rel="back" class="ui-btn ui-shadow ui-corner-all ui-btn-b" id="dialog-button"></a>
+		</div>
+</div> <!-- popup dialog -->
+
+</body>
+</html>
