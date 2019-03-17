@@ -4,7 +4,7 @@
 
 ; HM NIS Edit Wizard helper defines
 !define PRODUCT_NAME "Movies On The Run (MOTR)"
-!define PRODUCT_VERSION "1.46betaGit"
+!define PRODUCT_VERSION "1.6beta"
 !define PRODUCT_PUBLISHER "Lars Werner"
 !define PRODUCT_WEB_SITE "http://lars.werner.no/motrd/"
 !define PRODUCT_DIR_REGKEY "Software\MOTR\InstallerPath"

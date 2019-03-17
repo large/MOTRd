@@ -2,7 +2,7 @@
 
 REM Start with the MOTRd files
 set archivename="MOTRd.zip"
-set sourcepath="C:\Source\MOTRd"
+set sourcepath="C:\Users\Large\source\repos\MOTRd"
 set sourcepathbin="%sourcepath%\MOTRd\bin\Release\"
 set sourcepathmime="%sourcepath%\WebSockets\"
 set zipfile=7za.exe a -tzip -bd -bb0 "%archivename%"
@@ -32,8 +32,8 @@ del /S %archivename2%
 REM Copy the Android installfile motr.apk to the webfiles
 mkdir %sourcepath2%\android
 del /S %sourcepath2%\android\motr.apk
-set sourcepath3=C:\Source\MOTRApp\MOTRApp\MOTRApp.Android\bin\Release
-copy %sourcepath3%\Lars.Werner.MOTR-Signed.apk %sourcepath2%\android\motr.apk
+set sourcepath3=C:\Users\Large\source\repos\MOTRApp\MOTRApp\MOTRApp.Android\bin\Release
+copy %sourcepath3%\com.larswerner.motr-Signed.apk %sourcepath2%\android\motr.apk
 
 REM Copy all the webfiles 
 mkdir WebFiles
@@ -46,4 +46,5 @@ REM Now launch the NSIS installer
 "C:\Program Files (x86)\NSIS\Bin\makensis" MOTRdInstaller.nsi
 del /S %archivename%
 del /S %archivename2%
+pause
 exit
