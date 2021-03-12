@@ -3,7 +3,8 @@
 from __future__ import unicode_literals
 
 from traceback import print_exc
-import os, sys, re, socket, urllib, urllib2, unicodedata, threading, time, traceback, ssl
+import os, sys, re, socket, urllib, unicodedata, threading, time, traceback, ssl
+from urllib.request import urlopen
 from resources.lib import kodiutils
 #from resources.lib import kodilogging
 import logging
@@ -16,19 +17,20 @@ try:
 except ImportError:
     import json
 
-from motrwebsocket import MOTRWebsocket
-from motrconvertdialog import DialogConvertSelect
+from .motrwebsocket import MOTRWebsocket
+from .motrconvertdialog import DialogConvertSelect
 
 __pluginname__      = 'script.motr'
 __addon__           = xbmcaddon.Addon(id=__pluginname__)
 __addonid__         = __addon__.getAddonInfo('id')
 __addonname__       = __addon__.getAddonInfo('name')
-__cwd__             = __addon__.getAddonInfo('path').decode('utf-8')
+__cwd__             = __addon__.getAddonInfo('path')
 __author__          = __addon__.getAddonInfo('author')
 __version__         = __addon__.getAddonInfo('version')
 __language__        = __addon__.getLocalizedString
-__internaldebug__   = False
-__loggerlevel__     = xbmc.LOGNOTICE
+__internaldebug__   = True
+__loggerlevel__     = xbmc.LOGINFO
+
 
 def log(msg, level=__loggerlevel__):
     if __internaldebug__ == False and level != xbmc.LOGERROR:
@@ -65,14 +67,14 @@ class MOTRPlayer(xbmc.Player):
         self.onPlayBackStopped()
     
     def onPlayBackPaused(self):
-        print "MOTRPlayer paused..."
+        print("MOTRPlayer paused...")
 
     def sleep(self, s):
         xbmc.sleep(s) 
         
 class GUIandWebsocket(xbmcgui.WindowXML):
     def __init__(self, *args, **kwargs):
-        print "MOTR Init main window"
+        print("MOTR Init main window")
         xbmcgui.WindowXML.__init__( self, *args, **kwargs )
         self.WS = MOTRWebsocket(self)
         self.Download = False #Set to true when downloading a file and not streaming
@@ -137,7 +139,7 @@ class GUIandWebsocket(xbmcgui.WindowXML):
     def AddToDirectory(self, text, nID):
         myitem = xbmcgui.ListItem()
         myitem.setLabel(text)
-        myitem.setIconImage('folder.png')
+        myitem.setArt({'icon':'folder.png'})
         myitem.setProperty('nID', str(nID))
         self.getControl( 100 ).addItem( myitem )
     
@@ -147,23 +149,23 @@ class GUIandWebsocket(xbmcgui.WindowXML):
         myitem.setLabel(sFileName)
         myitem.setLabel2(sFileSize)
         if bFolder == True:
-            myitem.setIconImage('folder.png')
+            myitem.setArt({'icon':'folder.png'})
         else:
             myitem.setProperty('bIsMovie', "False")
             myitem.setProperty('bIsArchive', "False")
             filename, file_extension = os.path.splitext( sFileName )
             file_extension = file_extension.upper()
             if file_extension.endswith(('.MP4','.M4V', '.MKV', '.MPG', '.MPEG', '.AVI', '.WMV', '.FLV', '.WEBM', '.TS', '.MTS', '.M2TS', '.MOV')):
-                myitem.setIconImage('video.png') 
+                myitem.setArt({'icon':'video.png'}) 
                 myitem.setProperty('bIsMovie', "True")
                 myitem.setInfo(type='video', infoLabels={'title': 'hest', 'plot': 'Jalla'})
             elif file_extension == '.ZIP':
-                myitem.setIconImage('zip.png')
+                myitem.setArt({'icon':'zip.png'})
             elif file_extension == '.RAR' or re.search(r'\.R\d+$', file_extension):
-                myitem.setIconImage('rar.png')
+                myitem.setArt({'icon':'rar.png'})
                 myitem.setProperty('bIsArchive', "True")
             else:
-                myitem.setIconImage('file.png')
+                myitem.setArt({'icon':'file.png'})
         myitem.setProperty('nID', str(nID))
         myitem.setProperty('bFolder', str(bFolder))
         self.getControl( 500 ).addItem( myitem )
@@ -185,13 +187,17 @@ class GUIandWebsocket(xbmcgui.WindowXML):
             self.WS.SendMOTRCommand("SETFILESORTING", selectedsort)            
     
     def SetCleanFilename(self, isclean, bSendCommand = False):
-        if isinstance(isclean, basestring):
-            bClean = isclean.upper() == 'TRUE'
+        #if isinstance(isclean, basestring):
+        #    bClean = isclean.upper() == 'TRUE'
+        #else
+        if isinstance(isclean, bool) == False:
+            isclean = isclean.upper()
+            bClean = isclean == "TRUE"
         else:
             bClean = isclean
-            isclean = 'false'
-            if bClean == True:
-                isclean = 'true'
+        isclean = 'false'
+        if bClean == True:
+            isclean = 'true'
         self.getControl ( 9503 ).setSelected(bClean)
         if bSendCommand == True:
             self.WS.SendMOTRCommand("CLEANFILENAMES", isclean)            
@@ -447,7 +453,7 @@ class GUIandWebsocket(xbmcgui.WindowXML):
                 self.AddToDirectory(JSONData['aArray'][x]['sDisplayName'], JSONData['aArray'][x]['nID'])
             self.WS.SendMOTRCommand("GETFILESORTING", "")
         if Command == 'FILESORTING':
-            print "Filesorting is: " + JSONData['aArray'][0]
+            print("Filesorting is: " + JSONData['aArray'][0])
             sTmpSorting = JSONData['aArray'][0]
             sTmpSetting = kodiutils.get_setting('sorting')
             if sTmpSetting == "":
@@ -466,7 +472,7 @@ class GUIandWebsocket(xbmcgui.WindowXML):
             self.WS.SendMOTRCommand("GETCLEANFILENAMES", "")
             
         if Command == 'GETCLEANFILENAMES':
-            print "Clean filenames is: " + JSONData['aArray'][0]
+            print("Clean filenames is: " + JSONData['aArray'][0])
             sTmpCleanFile = JSONData['aArray'][0]
             sTmpCleanSetting = kodiutils.get_setting('cleanfilename')
             if sTmpCleanFile == sTmpCleanSetting:
@@ -557,11 +563,11 @@ class GUIandWebsocket(xbmcgui.WindowXML):
                 listitem = xbmcgui.ListItem( self.Streamname ) #To add the filename / streamname we are showing
                 #xbmc.Player().play(sWebConnect, listitem)
                 self.MyPlayer.onInit() #Zero before start
-                #print "MOTRPlayer resume position: " + str(self.StreamResumePosition)
-                self.MyPlayer.play(sWebConnect, listitem, False, self.StreamResumePosition) #Resume position is not 0 when seek to is selected
+                #print("MOTRPlayer resume position: " + str(self.StreamResumePosition))
+                self.MyPlayer.play(sWebConnect + "|verifypeer=false", listitem, False, self.StreamResumePosition) #Resume position is not 0 when seek to is selected
                 if self.StreamResumePosition == 0: #No resume, no need to trigger seek
                     self.MyPlayer.SeekDone()
-                #print "MOTRPlayer In waiting loop"
+                #print("MOTRPlayer In waiting loop")
                 self.TmpPosition = 0
                 nTimeCounter = 0
                 nTimeCheckSpan = 3
@@ -612,13 +618,13 @@ class GUIandWebsocket(xbmcgui.WindowXML):
                         #Store the position for saving 
                         self.TmpPosition = self.MyPlayer.getTime()
                     self.MyPlayer.sleep(1000)
-                #print "MOTRPlayer Out of waiting loop, time exited: " + str(self.TmpPosition) + " - Resumepos: " + str(self.StreamResumePosition)
+                #print("MOTRPlayer Out of waiting loop, time exited: " + str(self.TmpPosition) + " - Resumepos: " + str(self.StreamResumePosition))
                 #Set position only during the 30 first secs and no position was set. After that ignore if you past 30 secs and sets it below that (eg start from beginning with an error)
                 if (self.TmpPosition > 30 and self.StreamResumePosition > 0) or (self.TmpPosition <= 30 and self.StreamResumePosition <=30) or self.StreamResumePosition == 0:
                     self.WS.SendMOTRCommand("SETSTOREDPARAMETER", self.StreamID+";PLAYPOSITION;"+str(self.TmpPosition)) #Store the position
             else:
                 sPath = kodiutils.get_setting('saveto')
-                self.DownloadURL(sWebConnect, sPath + self.DownloadFilename)
+                self.DownloadURL(sWebConnect + "|verifypeer=false", sPath + self.DownloadFilename)
 
         if Command == 'SETQUEUESELECTED':
             iOutput = JSONData['count'] - 1
@@ -628,7 +634,7 @@ class GUIandWebsocket(xbmcgui.WindowXML):
             kodiutils.dialogtext(__language__(30018), sOutput)
             
         if Command == 'GETSTOREDPARAMETER':
-            print "GETSTOREDPARAMETER - Command " + JSONData['aArray'][0] + " with value: " + JSONData['aArray'][1]
+            print("GETSTOREDPARAMETER - Command " + JSONData['aArray'][0] + " with value: " + JSONData['aArray'][1])
             sCommand = JSONData['aArray'][0]
             sValue = JSONData['aArray'][1]
             
@@ -661,13 +667,13 @@ class GUIandWebsocket(xbmcgui.WindowXML):
             if JSONData['count'] > 0:
                 #sHTTPSource = "https://image.tmdb.org/t/p/original/" #alternative directly on tmdb.org
                 sHTTPSource = self.DownloadLink("MovieInfo")
-                sMovieReceived = JSONData['aArray'][0].decode("utf-8")
+                sMovieReceived = JSONData['aArray'][0]
                 MovieJSON = json.loads(sMovieReceived)
                 liz = xbmcgui.ListItem(MovieJSON['Title'])
-                liz.setArt({ 'poster': sHTTPSource + MovieJSON['PosterPath'], 'banner': 'logo.png'})
-                liz.setInfo(type='Video', infoLabels={ 'plot': MovieJSON['Overview'], 'year':  MovieJSON['ReleaseDate'], 'path': '', 'genre': MovieJSON['Genres']})
-                liz.setRating("tmdb", MovieJSON['VoteAverage'], MovieJSON['VoteCount'], True)
                 liz.setProperty("IsPlayable", "false")
+                liz.setArt({ 'poster': sHTTPSource + MovieJSON['PosterPath'], 'banner': 'logo.png'})
+                liz.setInfo(type='Video', infoLabels={ 'plot': MovieJSON['Overview'], 'year':  MovieJSON['ReleaseDate'], 'genre': MovieJSON['Genres']})
+                liz.setRating("tmdb", MovieJSON['VoteAverage'], MovieJSON['VoteCount'], True)
                 liz.setPath('/')
                 self.getControl( 11 ).setImage(sHTTPSource + MovieJSON['BackdropPath'])
                 self.getControl( 11 ).setVisible(True)
@@ -687,9 +693,9 @@ class GUIandWebsocket(xbmcgui.WindowXML):
         if "https" in remote:
             #gcontext = ssl.SSLContext(ssl.PROTOCOL_TLSv1)
             gcontext = ssl._create_unverified_context()
-            u = urllib2.urlopen(remote, context=gcontext)
+            u = urlopen(remote, context=gcontext)
         else:
-            u = urllib2.urlopen(remote)
+            u = urlopen(remote)
         h = u.info()
         totalSize = int(h["Content-Length"])
 
@@ -730,7 +736,7 @@ class GUIandWebsocket(xbmcgui.WindowXML):
                 if bUpdateProgress == True:
                     progresstring = ("(%d%%, %d MB, %d KB/s, %s %d)" %
                     (percent, progress_size / (1024 * 1024), speed, __language__(30020), duration))
-                    dp.update(percent, self.DownloadFilename, '', progresstring)
+                    dp.update(percent, self.DownloadFilename + "[CR][CR]" + progresstring)
                     bUpdateProgress = False
 
             if dp.iscanceled():
@@ -741,10 +747,10 @@ class GUIandWebsocket(xbmcgui.WindowXML):
         fp.close()
 
     def onPlayBackStopped( self ):
-        print "Playback stopped"
+        print("Playback stopped")
 
     def onPlayBackEnded( self ):
-        print "Playback ended"
+        print("Playback ended")
 
 def show_dialog():
     mydisplay = GUIandWebsocket("motrwindow.xml", __cwd__, "Default")

@@ -215,8 +215,9 @@ namespace MOTRd
             {
                 string sPath = m_Sessions.GetPathByID(sSessionID, Convert.ToInt32(WSCommand.parameter));
                 string sDrive = m_Sessions.GetTemporaryVariable(sSessionID, "Drive");
-                if (sPath.Substring(sPath.Length - 1) != "\\")
-                    sPath += '\\';
+                if (sPath.Length > 0)
+                    if (sPath.Substring(sPath.Length - 1) != "\\")
+                        sPath += '\\';
 
                 //Store the last folder for the "LASTFOLDER" function
                 string sLastPath = m_Sessions.GetTemporaryVariable(sSessionID, "DrivePosition");

@@ -440,7 +440,7 @@ namespace WebSockets.Server.Http
                     Byte[] bytes = File.ReadAllBytes(fi.FullName);
                     RespondSuccess(contentType, bytes.Length);
                     _stream.Write(bytes, 0, bytes.Length);
-                    _logger.Debug(this.GetType(), "Served file: {0}", file);
+                    _logger.Debug(this.GetType(), $"Served file: {file}");
                 }
                 else
                 {

@@ -96,8 +96,16 @@ namespace MOTRd
                 string sArg = args[i].ToUpper();
                 if (sArg == "-CERT")
                 {
+                    string name = "MOTRd";
+                    string domain = "";
+                    if (args.Length > i+1)
+                    {
+                        domain = "*." + args[i + 1];
+                        name = domain;
+                    }
+
                     CertGenerator m_Generator = new CertGenerator();
-                    if (m_Generator.GenerateAndSave("MOTRd"))
+                    if (m_Generator.GenerateAndSave(name, domain))
                         LogEventInformation("MOTR certificate generated success");
                     else
                         LogEventError("MOTR certification generation error");

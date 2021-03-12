@@ -173,14 +173,14 @@ namespace WebSockets
             {
                 SslStream sslStream = new SslStream(stream, false);
                 //_logger.Information(this.GetType(), "Attempting to secure connection...");
-                sslStream.AuthenticateAsServer(_sslCertificate, false, SslProtocols.Tls, true);
+                sslStream.AuthenticateAsServer(_sslCertificate, false, SslProtocols.Tls12, true);
                 //_logger.Information(this.GetType(), "Connection successfully secured");
                 return sslStream;
             }
             catch (AuthenticationException e)
             {
                 // TODO: send 401 Unauthorized
-                _logger.Error(typeof(WebServer), "401 unauth on {1} with error {2}", tcpClient.Client.LocalEndPoint.ToString(), e.Message.ToString());
+                _logger.Error(typeof(WebServer), $"401 unauth on {tcpClient.Client.LocalEndPoint} with error {e.Message}");
                 return null;
                 //throw e;
             }
