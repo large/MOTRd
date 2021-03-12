@@ -2,7 +2,7 @@
 from __future__ import unicode_literals
 
 from traceback import print_exc
-import os, sys, re, socket, urllib, urllib2, unicodedata, threading, time
+import os, sys, re, socket, urllib, unicodedata, threading, time
 from resources.lib import kodiutils
 #from resources.lib import kodilogging
 import logging
@@ -202,7 +202,7 @@ class DialogConvertSelect(xbmcgui.WindowXMLDialog):
             #print( '{0} = {1}'.format(name, value))
         
     def onInit(self):
-        print "Dialog init"
+        print("Dialog init")
         self.AddProfiles()
         self.SetFilename("") #No profile selected at startup
 
@@ -229,7 +229,7 @@ class DialogConvertSelect(xbmcgui.WindowXMLDialog):
             self.CheckIfValidProfile(0) #Cancel
             
     def CheckIfValidProfile(self, nReturn):
-        if len(self.sProfile) == 0 and nReturn is not 0:
+        if len(self.sProfile) == 0 and nReturn != 0:
             kodiutils.dialogokerror(__lang__(30300), __lang__(30301))
             return
         self.nReturnStatus = nReturn

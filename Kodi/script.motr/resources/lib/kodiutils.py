@@ -23,7 +23,7 @@ def dialogyesno(header, line1, line2='', line3=''):
     return xbmcgui.Dialog().yesno(header, line1, line2, line3) #True on yes
     
 def dialogokerror(line1, line2='', line3=''):
-    xbmcgui.Dialog().ok(__lang__(30101), line1, line2, line3)
+    xbmcgui.Dialog().ok(__lang__(30101), line1 + "[CR]" + line2 + "[CR]" + line3)
 
 def dialogstreamordownload(header):
     return xbmcgui.Dialog().select(header, [__lang__(30102), __lang__(30114), __lang__(30103), __lang__(30007)])
@@ -44,7 +44,7 @@ def show_settings():
     ADDON.openSettings()
 
 def get_setting(setting):
-    return ADDON.getSetting(setting).strip().decode('utf-8')
+    return ADDON.getSetting(setting).strip()
 
 def set_setting(setting, value):
     ADDON.setSetting(setting, str(value))
@@ -65,5 +65,5 @@ def get_setting_as_int(setting):
         return 0
 
 def get_string(string_id):
-    return ADDON.getLocalizedString(string_id).encode('utf-8', 'ignore')
+    return ADDON.getLocalizedString(string_id)
 

@@ -96,14 +96,19 @@ namespace MOTRd
 
     class CertGenerator
     {
-        public bool GenerateAndSave(string subjectName)
+        public bool GenerateAndSave(string subjectName, string domain = "")
         {
             try
             {
                 string pwd = "";
                 var suppliers = new[] { "CN="+subjectName };
-                var cb = new X509CertBuilder(suppliers, "CN=Lars Werner, OU=MOTRd, O=Self signed cert for https, C=NO", CertStrength.bits_2048);
-                X509Certificate2 cert = cb.MakeCertificate(pwd, "CN=MOTRd, OU=By Lars Werner, C=NO", 10);
+                string auth = "CN=Lars Werner, OU=MOTRd, O=Self signed cert for https, C=NO";
+                string auth2 = "CN=MOTRd, OU=By Lars Werner, C=NO";
+                if (domain.Length > 0)
+                    auth = auth2 =  $"CN={domain}";
+
+                var cb = new X509CertBuilder(suppliers, auth, CertStrength.bits_2048);
+                X509Certificate2 cert = cb.MakeCertificate(pwd, auth2 , 10);
 
                 string sExeFolder = AppDomain.CurrentDomain.BaseDirectory;
 

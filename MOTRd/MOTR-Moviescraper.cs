@@ -95,9 +95,17 @@ namespace MOTRd
 
             //apiSearchResponse = movieApi.SearchByTitleAsync(sQuery).GetAwaiter().GetResult();
 
-            apiSearchResponse = Task.Run(() => {
-                return movieApi.SearchByTitleAsync(sQuery);
-            }).Result;
+            try
+            {
+                apiSearchResponse = Task.Run(() =>
+                {
+                        return movieApi.SearchByTitleAsync(sQuery);
+                }).Result;
+            }
+            catch
+            {
+                return new ArrayList();
+            }
 
             //Console.WriteLine("Movieimage: https://image.tmdb.org/t/p/original/" + apiSearchResponse.Results[0].PosterPath);
 

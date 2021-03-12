@@ -4,7 +4,7 @@
 
 ; HM NIS Edit Wizard helper defines
 !define PRODUCT_NAME "Movies On The Run (MOTR)"
-!define PRODUCT_VERSION "1.46betaGit"
+!define PRODUCT_VERSION "1.9beta"
 !define PRODUCT_PUBLISHER "Lars Werner"
 !define PRODUCT_WEB_SITE "http://lars.werner.no/motrd/"
 !define PRODUCT_DIR_REGKEY "Software\MOTR\InstallerPath"
@@ -89,6 +89,9 @@ Function .onInit
 		Quit
 	${EndIf}
 
+	;Check which dot.net we have installed
+	call CheckAndInstallDotNet
+
 	!insertmacro MUI_LANGDLL_DISPLAY
 	!insertmacro INSTALLOPTIONS_EXTRACT  "serviceinstaller.ini"
 	!insertmacro INSTALLOPTIONS_EXTRACT  "initialinstallation.ini"
@@ -149,6 +152,7 @@ Section -Post
   pop $1
   DetailPrint $1
   DetailPrint "Creating SSL certificate"
+  
   ;Create certificate in the directory installed
   nsExec::ExecToStack '"$INSTDIR\MOTRd.exe" -CERT'
   pop $0
@@ -171,13 +175,13 @@ Section -Post
   ;Creates a URL
   WriteIniStr "$INSTDIR\Links\${PRODUCT_NAME}.url" "InternetShortcut" "URL" "${PRODUCT_WEB_SITE}"
 
-  CreateShortCut "${PRODUCT_STARTMENU}\Movies On The Run (console mode).lnk" "$INSTDIR\MOTRd.exe"  "" "$INSTDIR\MOTRd.exe" 0
-
-  CreateShortCut "${PRODUCT_STARTMENU}\Scripts.lnk" "${PRODUCT_SCRIPTS}"  "" "${PRODUCT_SCRIPTS}" 0
-  
-  CreateShortCut "${PRODUCT_STARTMENU}\Visit MOTR online.lnk" "$INSTDIR\Links\${PRODUCT_NAME}.url" "" "$INSTDIR\link.ico" 0
-  CreateShortCut "${PRODUCT_STARTMENU}\InstallerLicense.lnk" "$INSTDIR\InstallerLicense.txt" "" "$INSTDIR\InstallerLicense.txt" 0
-  CreateShortCut "${PRODUCT_STARTMENU}\Uninstall.lnk" "$INSTDIR\Uninstaller-MOTR.exe" "" "$INSTDIR\Uninstaller-MOTR.exe" 0
+  ;Create start menu items
+  CreateShortCut "${PRODUCT_STARTMENU}\Domain certification.lnk" "${PRODUCT_SCRIPTS}\domaincert.bat" "" "${PRODUCT_SCRIPTS}\domaincert.bat" 0
+  CreateShortCut "${PRODUCT_STARTMENU}\Movies On The Run (console mode).lnk" 	"$INSTDIR\MOTRd.exe"  "" "$INSTDIR\MOTRd.exe" 0
+  CreateShortCut "${PRODUCT_STARTMENU}\InstallerLicense.lnk" 					"$INSTDIR\InstallerLicense.txt" "" "$INSTDIR\InstallerLicense.txt" 0
+  CreateShortCut "${PRODUCT_STARTMENU}\Scripts.lnk" 							"${PRODUCT_SCRIPTS}"  "" "${PRODUCT_SCRIPTS}" 0
+  CreateShortCut "${PRODUCT_STARTMENU}\Visit MOTR online.lnk" 					"$INSTDIR\Links\${PRODUCT_NAME}.url" "" "$INSTDIR\link.ico" 0
+  CreateShortCut "${PRODUCT_STARTMENU}\Uninstall.lnk" 							"$INSTDIR\Uninstaller-MOTR.exe" "" "$INSTDIR\Uninstaller-MOTR.exe" 0
 SectionEnd
 
 
@@ -275,6 +279,7 @@ Function ServiceInstallerPost
 		;Create the bat-scripts needed
 		call CreateServiceInstallerBat
 		call CreateServiceUnInstallerBat
+		call CreateCertDomainBat
 		
 		;Check if the port selected is available
 		 ${If} ${TCPPortOpen} $R1
@@ -438,5 +443,69 @@ Function CreateServiceUnInstallerBat
          FileWrite $0 "installutil.exe /u $\"$INSTDIR\MOTRd.exe$\"$\r$\n"
          FileClose $0
 FunctionEnd
+
+
+Function CreateCertDomainBat
+         FileOpen $0 "${PRODUCT_SCRIPTS}\domaincert.bat" "w"
+         FileWrite $0 "@ECHO OFF$\r$\n"
+         FileWrite $0 "REM Check if command prompt is elevated$\r$\n"
+         FileWrite $0 "net session >nul 2>&1$\r$\n"
+         FileWrite $0 "if %errorLevel% == 0 ($\r$\n"
+         FileWrite $0 "		goto STARTING$\r$\n"
+         FileWrite $0 ") else ($\r$\n"
+         FileWrite $0 "		ECHO Warning: This script needs to be runned as administrator.$\r$\n"
+         FileWrite $0 "		pause$\r$\n"
+         FileWrite $0 "		goto THEEND$\r$\n"
+         FileWrite $0 ")$\r$\n"
+         FileWrite $0 ":STARTING$\r$\n"
+		 FileWrite $0 "cd $\"${PRODUCT_INSTALLDIRECTORY}$\"$\r$\n"
+         FileWrite $0 "ECHO Please enter top-level domainname.$\r$\n"
+         FileWrite $0 "ECHO Example: site.com$\r$\n"
+         FileWrite $0 "ECHO (Do not enter sub domains like motr.site.com)$\r$\n"
+         FileWrite $0 "ping 127.0.0.1 -n 5 -w 2000 >nul$\r$\n"
+         FileWrite $0 "ECHO. $\r$\n"
+         FileWrite $0 "ECHO Please stop MOTRd before you proceed to gain access to keyfile$\r$\n"
+         FileWrite $0 "ping 127.0.0.1 -n 5 -w 2000 >nul$\r$\n"
+         FileWrite $0 "ECHO. $\r$\n"
+         FileWrite $0 "ECHO Enter domain and press ENTER to continue or CTRL+C to abort$\r$\n"
+         FileWrite $0 "ECHO. $\r$\n"
+         FileWrite $0 "set /p id=$\"Domain: $\"$\r$\n"
+		 FileWrite $0 "MOTRd.exe -CERT %id%$\r$\n"
+         FileWrite $0 "ECHO. $\r$\n"
+         FileWrite $0 "ECHO Please restart MOTRd if the cert-file creation was OK$\r$\n"
+		 FileWrite $0 "pause$\r$\n"
+         FileWrite $0 ":THEEND$\r$\n"
+         FileWrite $0 "exit$\r$\n"
+         FileClose $0
+FunctionEnd
+
+
+Function CheckAndInstallDotNet
+    ; Magic numbers from http://msdn.microsoft.com/en-us/library/ee942965.aspx
+    ClearErrors
+    ReadRegDWORD $0 HKLM "SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Full" "Release"
+
+    IfErrors NotDetected
+
+	; 4.7.2 on all Windows version that support it
+    ${If} $0 >= 461814
+
+        DetailPrint "Microsoft .NET Framework 4.7.2 is installed ($0)"
+    ${Else}
+    NotDetected:
+        DetailPrint "Installing Microsoft .NET Framework 4.7.2"
+        SetDetailsPrint listonly
+        ExecWait '"$INSTDIR\Tools\dotNetFx45_Full_setup.exe" /passive /norestart' $0
+        ${If} $0 == 3010 
+        ${OrIf} $0 == 1641
+            DetailPrint "Microsoft .NET Framework 4.7.2 installer requested reboot"
+            SetRebootFlag true
+        ${EndIf}
+        SetDetailsPrint lastused
+        DetailPrint "Microsoft .NET Framework 4.7.2 installer returned $0"
+    ${EndIf}
+
+FunctionEnd
+
 
 ;-------------- END BAT SCRIPTS

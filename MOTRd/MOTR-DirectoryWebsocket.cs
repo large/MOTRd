@@ -63,9 +63,17 @@ namespace MOTRd
             //Try & catch on the parsing
             try
             {
-                dynamic WSTemp= fastJSON.JSON.ToDynamic(text);
-                WSCommand.command = WSTemp.command;
-                WSCommand.parameter = WSTemp.parameter;
+                if (text.Length <= 0 || text=="{}")
+                {
+                    WSCommand.command = "";
+                    WSCommand.parameter = "";
+                }
+                else
+                {
+                    dynamic WSTemp = fastJSON.JSON.ToDynamic(text);
+                    WSCommand.command = WSTemp.command;
+                    WSCommand.parameter = WSTemp.parameter;
+                }
                 //sSessionID = WSTemp.sessionid;
                 //WSCommand = (WebSocketCommandClass)fastJSON.JSON.ToObject(text, new JSONParameters() { UseExtensions = false });
             }
@@ -207,8 +215,9 @@ namespace MOTRd
             {
                 string sPath = m_Sessions.GetPathByID(sSessionID, Convert.ToInt32(WSCommand.parameter));
                 string sDrive = m_Sessions.GetTemporaryVariable(sSessionID, "Drive");
-                if (sPath.Substring(sPath.Length - 1) != "\\")
-                    sPath += '\\';
+                if (sPath.Length > 0)
+                    if (sPath.Substring(sPath.Length - 1) != "\\")
+                        sPath += '\\';
 
                 //Store the last folder for the "LASTFOLDER" function
                 string sLastPath = m_Sessions.GetTemporaryVariable(sSessionID, "DrivePosition");
@@ -817,6 +826,24 @@ namespace MOTRd
                 WSSend.aArray.Add(m_Downloads.RemoveMobileDownload(DownloadID));
                 WSSend.count = WSSend.aArray.Count;
                 jsonText = fastJSON.JSON.ToJSON(WSSend);
+            }
+            else if (WSCommand.command == "MOBILEDOWNLOADMOVE")
+            {
+                string[] aParameters = WSCommand.parameter.Split(';');
+                if (aParameters.Count() == 2)
+                {
+                    string DownloadID = aParameters[0];
+                    string sMove = aParameters[1];
+                    WSSend.command = "MOBILEDOWNLOADMOVE";
+                    WSSend.aArray = new ArrayList();
+
+                    MOTR_Downloads.MobileDownloadMover newMovement;
+                    if (Enum.TryParse(sMove.ToUpper(), out newMovement))
+                        WSSend.aArray.Add(m_Downloads.MoveMobileDownload(DownloadID, newMovement));
+
+                    WSSend.count = WSSend.aArray.Count;
+                    jsonText = fastJSON.JSON.ToJSON(WSSend);
+                }
             }
             //Send if the jsonText is set
             if (jsonText != null)

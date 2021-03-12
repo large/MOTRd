@@ -66,7 +66,8 @@ namespace WebSockets.Client
                 //_logger.Information(this.GetType(), "Attempting to secure connection...");
 
                 // This will throw an AuthenticationException if the sertificate is not valid
-                sslStream.AuthenticateAsClient(host);
+                //sslStream.AuthenticateAsClient(host);
+                sslStream.AuthenticateAsClient(host, null, SslProtocols.Tls12, true);
 
                 //_logger.Information(this.GetType(), "Connection successfully secured.");
                 return sslStream;

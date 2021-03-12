@@ -43,7 +43,7 @@ namespace MOTRd
     }
 
     //Database 
-    public class DownloadMobileDB
+    public class DownloadMobileDB : IEquatable<DownloadMobileDB>
     {
         public int Id { get; set; }
         public int MobileID { get; set; }
@@ -53,6 +53,17 @@ namespace MOTRd
         public DownloadStatus Status { get; set; }
         public long FileSize { get; set; }
         public string Longtext { get; set; }
+
+        public bool Equals(DownloadMobileDB other)
+        {
+            if (other == null)
+                return false;
+
+            if (Id == other.Id)
+                return true;
+            else
+                return false;
+        }
     }
 
     public class SimpleTest
@@ -375,6 +386,89 @@ namespace MOTRd
                 aDBValues.Delete(results.Id);
                 return true;
             }
+            return false;
+        }
+
+        public enum MobileDownloadMover
+        {
+            UP,
+            DOWN,
+            FIRST,
+            LAST
+        }
+
+        //Add a way to manipulate the order of items
+        public bool MoveMobileDownload(string sDownloadID, MobileDownloadMover mover)
+        {
+            LiteCollection<DownloadMobileDB> aDBValues = m_dbdownload.GetCollection<DownloadMobileDB>("mobiledownload");
+            var results = aDBValues.FindOne(x => x.DownloadID == sDownloadID);
+            if (results != null) //If dir exists, return displayname
+            {
+                DownloadMobileDB Source = results;
+                DownloadMobileDB Destination = null;
+                DownloadMobileDB Last = null;
+
+                var results2 = aDBValues.Find(x => x.MobileID == Source.MobileID && x.Status == DownloadStatus.NOTSET);
+                foreach(DownloadMobileDB download in results2)
+                {
+                    //Move as first object (not status set)
+                    if (Destination == null &&
+                        mover == MobileDownloadMover.FIRST
+                        )
+                    {
+                        Destination = download;
+                        int nSourceID = Source.Id;
+                        Source.Id = Destination.Id;
+                        Destination.Id = nSourceID;
+                        aDBValues.Update(Source);
+                        aDBValues.Update(Destination);
+                        return true; //Status was set
+                    }
+
+                    //Move UP in in list
+                    if (mover == MobileDownloadMover.UP &&
+                        download.Equals(Source)
+                        && Last != null)
+                    {
+                        Destination = Last;
+                        int nSourceID = Source.Id;
+                        Source.Id = Destination.Id;
+                        Destination.Id = nSourceID;
+                        aDBValues.Update(Source);
+                        aDBValues.Update(Destination);
+                        return true; //Status was set
+                    }
+
+                        //Move DOWN in in list (last in one itteration after)
+                    if (mover == MobileDownloadMover.DOWN &&
+                        Source.Equals(Last))
+                    {
+                        Destination = download;
+                        int nSourceID = Source.Id;
+                        Source.Id = Destination.Id;
+                        Destination.Id = nSourceID;
+                        aDBValues.Update(Source);
+                        aDBValues.Update(Destination);
+                        return true; //Status was set
+                    }
+
+                    //Store last for swapping
+                    Last = download;
+                }
+
+                //Swap to bottom
+                if (mover == MobileDownloadMover.LAST)
+                {
+                    Destination = Last;
+                    int nSourceID = Source.Id;
+                    Source.Id = Destination.Id;
+                    Destination.Id = nSourceID;
+                    aDBValues.Update(Source);
+                    aDBValues.Update(Destination);
+                    return true; //Status was set
+                }
+            }
+
             return false;
         }
 

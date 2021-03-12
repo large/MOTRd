@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27004.2010
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31105.61
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MOTRd", "MOTRd\MOTRd.csproj", "{1BBA350A-5228-4A52-8324-A22522A673C7}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -11,8 +11,6 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebSockets", "WebSockets\WebSockets.csproj", "{D2DBCC1D-CEF2-400B-A886-7E0D13A25F9C}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "fastJSON", "fastJSON\fastJSON.csproj", "{207E91B1-C9F8-4913-88E1-3549EF5F3273}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Installer", "Installer\Installer.vcxproj", "{98DE6E8B-FFBF-468B-973E-31892046B29B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -74,24 +72,12 @@ Global
 		{207E91B1-C9F8-4913-88E1-3549EF5F3273}.Release|x64.Build.0 = Release|Any CPU
 		{207E91B1-C9F8-4913-88E1-3549EF5F3273}.Release|x86.ActiveCfg = Release|Any CPU
 		{207E91B1-C9F8-4913-88E1-3549EF5F3273}.Release|x86.Build.0 = Release|Any CPU
-		{98DE6E8B-FFBF-468B-973E-31892046B29B}.Debug|Any CPU.ActiveCfg = Debug|Win32
-		{98DE6E8B-FFBF-468B-973E-31892046B29B}.Debug|ARM.ActiveCfg = Debug|Win32
-		{98DE6E8B-FFBF-468B-973E-31892046B29B}.Debug|x64.ActiveCfg = Debug|x64
-		{98DE6E8B-FFBF-468B-973E-31892046B29B}.Debug|x64.Build.0 = Debug|x64
-		{98DE6E8B-FFBF-468B-973E-31892046B29B}.Debug|x86.ActiveCfg = Debug|Win32
-		{98DE6E8B-FFBF-468B-973E-31892046B29B}.Debug|x86.Build.0 = Debug|Win32
-		{98DE6E8B-FFBF-468B-973E-31892046B29B}.Release|Any CPU.ActiveCfg = Release|Win32
-		{98DE6E8B-FFBF-468B-973E-31892046B29B}.Release|ARM.ActiveCfg = Release|Win32
-		{98DE6E8B-FFBF-468B-973E-31892046B29B}.Release|x64.ActiveCfg = Release|x64
-		{98DE6E8B-FFBF-468B-973E-31892046B29B}.Release|x64.Build.0 = Release|x64
-		{98DE6E8B-FFBF-468B-973E-31892046B29B}.Release|x86.ActiveCfg = Release|Win32
-		{98DE6E8B-FFBF-468B-973E-31892046B29B}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {28E7BF0E-A427-4695-A74A-70CF77053AFD}
 		VisualSVNWorkingCopyRoot = .
+		SolutionGuid = {28E7BF0E-A427-4695-A74A-70CF77053AFD}
 	EndGlobalSection
 EndGlobal
