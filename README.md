@@ -19,7 +19,7 @@ In "Paths", press the + sign in the top-right corner. Add so many directories as
 In "Users" you can add other users
 In "Settings" you can change some settings + download updated versions of unrar or handbreak if needed.
 
-##Kodi
+## Kodi
 Kodi needs a repository to find the MOTR addon.
 Go to your server with /kodi behind and download the zip-file.
 In Kodi under addons press "Install from zip" and select your downloaded file.
